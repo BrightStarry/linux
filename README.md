@@ -136,3 +136,71 @@ vim
 :q! 退出保存
 :qw 保存退出
 ZZ快捷键 保存修改并退出
+
+####Docker容器 
+    慕课网上看到的教程，试着学一下，顺便把Linux也学一下。
+    今天乘着上班的空闲时间，在虚拟机上把docker（还有个redis）装好了。
+--- 
+    docker 教程
+    http://www.runoob.com/docker/docker-tutorial.html
+
+    CTRL + C 停止进程
+    
+    安装docker
+    http://www.imooc.com/article/16448 
+    
+    启动
+    systemctl start docker.service
+    
+    xx表示不同的命令如，pull、run等。可以查看该命令的帮助，所有参数
+    docker xx --help
+    
+    获取镜像 name：镜像名  [:tag]：版本，默认为最新的（也就是会自己加上一个参数:latest）
+    docker pull [options] name[:tag]
+    
+    上面的需要翻墙，下面的是指定 下载地址 。网易蜂巢不错。
+    docker pull hub.c.163.com/public/redis:2.8.4 
+    
+    查看本机的镜像  
+    docker images [options] [repository[:tag]]
+    
+    运行 image：镜像名字 command:命令 arg:命令的参数
+    docker run [options] image[:tag][command][arg...]
+    docker run -d image 后台运行，并打印出id
+    -p 8080:80  进行端口映射，将nginx的80端口映射到主机的8080端口上，也就是别人访问8080，可以访问到自己的80
+    -P 同上，不过是80端口映射到随机端口。
+    查看目前正在运行的容器
+    docker ps
+    
+    在运行的容器中执行命令 
+    docker exec [options] container command [arg...]
+    例如:   f：id中的字符
+    docker exec -it f bash
+    可以进入一个容器，和虚拟机中一样。相当于一个虚拟的linux。也就是容器内部
+    
+    停止运行容器 如果只有一个，f就是任意字符
+    docker stop f
+    
+    
+    制作镜像
+    以下就是 打包镜像tomcat和jpress.war
+    在某个目录创建文件 Dockerfile 编辑如下内容：
+        from images(镜像名)   （继承自哪个镜像）
+        MAINTAINER ZX 970389745@qq.com  (维护人员信息)
+        COPY jpress.war  /usr/local/tomcat/webapps    (同一目录下要打包成镜像的文件,拷贝到tomcat的运行目录下)
+
+    然后在目录下使用  
+    即可创建镜像，注意， . 是当前目录的意思
+    docker build .   
+    下面这句 -t是创建镜像并命名，因为上面的镜像没有命名
+    docker build -t jpress:latest .
+    
+    运行容器
+    -d表示后台运行 -p表示设置端口映射， jpress是镜像名
+    docker run -d -p  8888:8080 jpress
+    
+    删除镜像
+    docker rmi xx(名字或id)
+    
+    运行mysql镜像
+    docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=xxx  images(镜像名)
