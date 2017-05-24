@@ -7,6 +7,10 @@
 这样三个步骤过后root用户的密码就设置好了
 切入root用户，  su root     输入刚刚设置好的密码就可以了
 
+JDK
+http://jingyan.baidu.com/article/642c9d34e7a9df644a46f720.html
+http://blog.csdn.net/tonytfjing/article/details/42167599
+
 虚拟机网卡设置成桥接，可以无需配置linux的网络。
 
 clear 清空命令行
@@ -17,7 +21,7 @@ yum update 更新yum
 
 yum list installed |grep java   查看是否安装了java
 
-ping ctrl + C 停止ping，不然会一直ping下去
+ctrl + c 退出
 
 yum -y list java*  查找yum中java开头的安装包
 
@@ -27,14 +31,14 @@ shift + PgUp PgDn  上下翻页  （注意，不是箭头，麻痹的）
 
 pwd 当前所处目录
 
-netstat -an|grep xxxx 查看xxxx端口的状态 如果有，且状态为listen，就是成功的。
+netstat -aon|grep xxxx 查看xxxx端口的状态 如果有，且状态为listen，就是成功的。
 
 ifconfig 查看ip
 
 rm  [文件] 删除 -f 删除文件  -r删除目录  -rf删除目录，包括目录下文件
 
 touch x  创建一个空文件
-mkdir x 创建一个文件夹
+mkdir x 创建一个文件夹 -p 递归创建 就是 /a/b/c这样字创建多个
 
 ll 查看当前目录下所有文件即详细信息（-开头是文件，d开头是文件夹，l开头是快捷方式） 是ls -l 的简写 ls -a 表示显示隐藏文件
 
@@ -66,10 +70,6 @@ chmod 761 [文件目录] 改变权限
 
 su - root 切换到root
 
-service iptables status 查看防火墙状态
-
-systemctl stop firewalld.service 关闭防火墙 这个是centos7的默认防火墙，7以下默认是iptables的
-systemctl disable firewalld.service #禁止firewall开机启动
 
 hostname xx 修改主机名
 
@@ -132,10 +132,15 @@ vim
 编辑模式下 
 	:set nu 显示行号 nonu 取消行号	
 	yy 复制当前行， dd 剪切当前行 p 粘贴
+	
+命令模式下
+    :/xx 可以查找xx，n表示下一个
+    %s/[old]/[new]/g 全局替换
 
 :q! 退出保存
 :qw 保存退出
 ZZ快捷键 保存修改并退出
+
 
 ####Docker容器 
     慕课网上看到的教程，试着学一下，顺便把Linux也学一下。
@@ -184,7 +189,7 @@ ZZ快捷键 保存修改并退出
     
     制作镜像
     以下就是 打包镜像tomcat和jpress.war
-    在某个目录创建文件 Dockerfile 编辑如下内容：
+    在某个目录创建文件 Dockerfile 使用vim，编辑输入如下内容：
         from images(镜像名)   （继承自哪个镜像）
         MAINTAINER ZX 970389745@qq.com  (维护人员信息)
         COPY jpress.war  /usr/local/tomcat/webapps    (同一目录下要打包成镜像的文件,拷贝到tomcat的运行目录下)
@@ -204,3 +209,195 @@ ZZ快捷键 保存修改并退出
     
     运行mysql镜像
     docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=xxx  images(镜像名)
+
+---
+### 静态IP  http://blog.csdn.net/johnnycode/article/details/40624403
+
+1. 使用ifconfig 命令查看目前使用的ifcfg-xx是多少。
+2. 使用vim /etc/sysconfig/network-scripts/ifcfg-xxx 命令修改该配置
+3. 修改如下内容：
+    BOOTPROTO="static" #dhcp改为static   
+    ONBOOT="yes" #开机启用本配置  
+    IPADDR=192.168.7.106 #静态IP  
+    GATEWAY=192.168.7.1 #默认网关  
+    NETMASK=255.255.255.0 #子网掩码  
+    DNS1=114.114.114.114 #DNS 配置 
+4. 保存，并重启网络。service network restart
+
+如果能ping内网，ping不通外网，可以看下网关设置是否正确。
+
+---
+远程拷贝
+scp  -r [路径/] 192.168.x.x:/xx/xx 
+---
+
+TAB键自动补全。贼好用
+
+---
+--- 
+###Shell学习   这个突然不想看了，确实没什么用，用到的时候看下教程把
+http://www.runoob.com/linux/linux-shell.html
+sh example.sh 运行shell脚本
+
+    #!/bin/sh  #开头规则
+echo "xxx"  #输出语句
+/bin/pwd #执行pwd命令
+
+/bin/data #输出时间 
+/bin/date +%f #格式化输出时间
+/bin/date +%f >> /x/x/y.info #格式化输出时间，到文件
+
+---
+###安装tomcat    
+http://www.cnblogs.com/hanyinglong/p/5024643.html
+
+解压
+tar -zxvf apache-tomcat-8.0.29.tar.gz  
+改名
+mv apache-tomcat-8.0.29 tomcat
+启动
+/zx/tomcat/bin/startup.sh
+停止
+/zx/tomcat/bin/shutdown.sh
+
+启动java web 项目，将项目放到webapps目录下。
+
+---
+### 防火墙
+
+service firewalld.service status 查看防火墙状态
+
+systemctl stop firewalld.service 关闭防火墙 这个是centos7的默认防火墙，7以下默认是iptables的
+systemctl disable firewalld.service #禁止firewall开机启动
+---
+测试端口是否打开
+telnet [ip]  [端口]
+
+---
+### Mysql 
+yum -y install perl perl-devel
+yum -y install libaio-devel
+下载
+wget http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+解压
+tar -zxvf mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+改名
+mv mysql-5.7.13-linux-glibc2.5-x86_64 mysql
+#添加用户组
+groupadd mysql
+#添加用户mysql 到用户组mysql
+useradd -g mysql mysql
+安装
+cd /zx/mysql/
+chown -R mysql:mysql  /usr/local/mysql /zx/mysql 
+mkdir /zx/mysql/data  -p
+mkdir /zx/mysql/log -p
+创建my.cnf文件
+vim /etc/my.cnf
+复制如下：
+[client]
+port = 3306
+socket = /zx/mysql/mysql.sock
+[mysqld]
+server_id=10
+port = 3306
+user = mysql
+character-set-server = utf8mb4
+default_storage_engine = innodb
+log_timestamps = SYSTEM
+socket = /zx/mysql/mysql.sock
+basedir = /zx/mysql
+datadir = /zx/mysql/data
+pid-file = /zx/mysql/data/mysql.pid
+max_connections = 1000
+max_connect_errors = 1000
+table_open_cache = 1024
+max_allowed_packet = 128M
+open_files_limit = 65535
+#####====================================[innodb]==============================
+innodb_buffer_pool_size = 1024M
+innodb_file_per_table = 1
+innodb_write_io_threads = 4
+innodb_read_io_threads = 4
+innodb_purge_threads = 2
+innodb_flush_log_at_trx_commit = 1
+innodb_log_file_size = 512M
+innodb_log_files_in_group = 2
+innodb_log_buffer_size = 16M
+innodb_max_dirty_pages_pct = 80
+innodb_lock_wait_timeout = 30
+innodb_data_file_path=ibdata1:1024M:autoextend
+
+#####====================================[log]==============================
+log_error = /zx/mysql/log/mysql-error.log 
+slow_query_log = 1
+long_query_time = 1 
+slow_query_log_file = /zx/mysql/log/mysql-slow.log
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+skip-grant-tables
+---
+初始化
+/zx/mysql/bin/mysqld --initialize --user=mysql --basedir=/zx/mysql --datadir=/zx/mysql/data  --innodb_undo_tablespaces=3 --explicit_defaults_for_timestamp
+如果配置了my.cnf的log_error，那么初始密码在log_error文件中，否则会打印出来。
+查看日志中的初始密码，密码是xlewthsu01I
+tail -f 300 /zx/mysql/log/mysql-error.log 
+继续安装
+/zx/mysql/bin/mysql_ssl_rsa_setup --datadir=/zx/mysql/data
+再次执行权限
+chown -R mysql:mysql  /zx/mysql /usr/local/mysql 
+配置启动文件
+cp /zx/mysql/support-files/mysql.server /etc/init.d/mysql
+chkconfig --add mysql
+chkconfig mysql on
+配置环境变量
+vim /etc/profile
+增加
+MYSQL_HOME=/zx/mysql
+PATH=$PATH:$MYSQL_HOME/bin
+使其生效
+source /etc/profile
+---
+BUG：Access denied for user 'root'@'localhost' (using password:YES)
+http://blog.csdn.net/skywalker_leo/article/details/47274441
+---
+BUG
+You must reset your password using ALTER USER statement before executing this statement.
+SET PASSWORD = PASSWORD('123456'); 
+---
+如果有问题，这么启动mysql start --skip-grant-tables
+
+---
+启动
+mysqld_safe --user=mysql &
+重启
+service mysql restart
+执行
+mysql -u root -p
+然后回车即可登录
+修改密码
+use mysql;
+update mysql.user set authentication_string=password('123456') where user='root';
+FLUSH PRIVILEGES;
+
+添加远程权限
+use mysql; 
+update user set host = '%' where user = 'root';
+测试
+select host, user from user;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
