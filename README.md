@@ -275,115 +275,118 @@ telnet [ip]  [端口]
 
 ---
 ### Mysql 
-yum -y install perl perl-devel
-yum -y install libaio-devel
-下载
-wget http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
-解压
-tar -zxvf mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
-改名
-mv mysql-5.7.13-linux-glibc2.5-x86_64 mysql
-#添加用户组
-groupadd mysql
-#添加用户mysql 到用户组mysql
-useradd -g mysql mysql
-安装
-cd /zx/mysql/
-chown -R mysql:mysql  /usr/local/mysql /zx/mysql 
-mkdir /zx/mysql/data  -p
-mkdir /zx/mysql/log -p
-创建my.cnf文件
-vim /etc/my.cnf
-复制如下：
-[client]
-port = 3306
-socket = /zx/mysql/mysql.sock
-[mysqld]
-server_id=10
-port = 3306
-user = mysql
-character-set-server = utf8mb4
-default_storage_engine = innodb
-log_timestamps = SYSTEM
-socket = /zx/mysql/mysql.sock
-basedir = /zx/mysql
-datadir = /zx/mysql/data
-pid-file = /zx/mysql/data/mysql.pid
-max_connections = 1000
-max_connect_errors = 1000
-table_open_cache = 1024
-max_allowed_packet = 128M
-open_files_limit = 65535
-#####====================================[innodb]==============================
-innodb_buffer_pool_size = 1024M
-innodb_file_per_table = 1
-innodb_write_io_threads = 4
-innodb_read_io_threads = 4
-innodb_purge_threads = 2
-innodb_flush_log_at_trx_commit = 1
-innodb_log_file_size = 512M
-innodb_log_files_in_group = 2
-innodb_log_buffer_size = 16M
-innodb_max_dirty_pages_pct = 80
-innodb_lock_wait_timeout = 30
-innodb_data_file_path=ibdata1:1024M:autoextend
+>
+	yum -y install perl perl-devel
+	yum -y install libaio-devel
+	下载
+	wget http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+	解压
+	tar -zxvf mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+	改名
+	mv mysql-5.7.13-linux-glibc2.5-x86_64 mysql
+	#添加用户组
+	groupadd mysql
+	#添加用户mysql 到用户组mysql
+	useradd -g mysql mysql
+	安装
+	cd /zx/mysql/
+	chown -R mysql:mysql  /usr/local/mysql /zx/mysql 
+	mkdir /zx/mysql/data  -p
+	mkdir /zx/mysql/log -p
+	创建my.cnf文件
+	vim /etc/my.cnf
+	复制如下：
+	[client]
+	port = 3306
+	socket = /zx/mysql/mysql.sock
+	[mysqld]
+	server_id=10
+	port = 3306
+	user = mysql
+	character-set-server = utf8mb4
+	default_storage_engine = innodb
+	log_timestamps = SYSTEM
+	socket = /zx/mysql/mysql.sock
+	basedir = /zx/mysql
+	datadir = /zx/mysql/data
+	pid-file = /zx/mysql/data/mysql.pid
+	max_connections = 1000
+	max_connect_errors = 1000
+	table_open_cache = 1024
+	max_allowed_packet = 128M
+	open_files_limit = 65535
+	#####====================================[innodb]==============================
+	innodb_buffer_pool_size = 1024M
+	innodb_file_per_table = 1
+	innodb_write_io_threads = 4
+	innodb_read_io_threads = 4
+	innodb_purge_threads = 2
+	innodb_flush_log_at_trx_commit = 1
+	innodb_log_file_size = 512M
+	innodb_log_files_in_group = 2
+	innodb_log_buffer_size = 16M
+	innodb_max_dirty_pages_pct = 80
+	innodb_lock_wait_timeout = 30
+	innodb_data_file_path=ibdata1:1024M:autoextend
 
-#####====================================[log]==============================
-log_error = /zx/mysql/log/mysql-error.log 
-slow_query_log = 1
-long_query_time = 1 
-slow_query_log_file = /zx/mysql/log/mysql-slow.log
-sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
-skip-grant-tables
----
-初始化
-/zx/mysql/bin/mysqld --initialize --user=mysql --basedir=/zx/mysql --datadir=/zx/mysql/data  --innodb_undo_tablespaces=3 --explicit_defaults_for_timestamp
-如果配置了my.cnf的log_error，那么初始密码在log_error文件中，否则会打印出来。
-查看日志中的初始密码，密码是xlewthsu01I
-tail -f 300 /zx/mysql/log/mysql-error.log 
-继续安装
-/zx/mysql/bin/mysql_ssl_rsa_setup --datadir=/zx/mysql/data
-再次执行权限
-chown -R mysql:mysql  /zx/mysql /usr/local/mysql 
-配置启动文件
-cp /zx/mysql/support-files/mysql.server /etc/init.d/mysql
-chkconfig --add mysql
-chkconfig mysql on
-配置环境变量
-vim /etc/profile
-增加
-MYSQL_HOME=/zx/mysql
-PATH=$PATH:$MYSQL_HOME/bin
-使其生效
-source /etc/profile
----
-BUG：Access denied for user 'root'@'localhost' (using password:YES)
-http://blog.csdn.net/skywalker_leo/article/details/47274441
----
-BUG
-You must reset your password using ALTER USER statement before executing this statement.
-SET PASSWORD = PASSWORD('123456'); 
----
-如果有问题，这么启动mysql start --skip-grant-tables
+	#####====================================[log]==============================
+	log_error = /zx/mysql/log/mysql-error.log 
+	slow_query_log = 1
+	long_query_time = 1 
+	slow_query_log_file = /zx/mysql/log/mysql-slow.log
+	sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+	skip-grant-tables
+	---
+	初始化
+	/zx/mysql/bin/mysqld --initialize --user=mysql --basedir=/zx/mysql --datadir=/zx/mysql/data  --innodb_undo_tablespaces=3 --explicit_defaults_for_timestamp
+	如果配置了my.cnf的log_error，那么初始密码在log_error文件中，否则会打印出来。
+	查看日志中的初始密码，密码是xlewthsu01I
+	tail -f 300 /zx/mysql/log/mysql-error.log 
+	继续安装
+	/zx/mysql/bin/mysql_ssl_rsa_setup --datadir=/zx/mysql/data
+	再次执行权限
+	chown -R mysql:mysql  /zx/mysql /usr/local/mysql 
+	配置启动文件
+	cp /zx/mysql/support-files/mysql.server /etc/init.d/mysql
+	chkconfig --add mysql
+	chkconfig mysql on
+	配置环境变量
+	vim /etc/profile
+	增加
+	MYSQL_HOME=/zx/mysql
+	PATH=$PATH:$MYSQL_HOME/bin
+	使其生效
+	source /etc/profile
+	---
+	BUG：Access denied for user 'root'@'localhost' (using password:YES)
+	http://blog.csdn.net/skywalker_leo/article/details/47274441
+	---
+	BUG
+	You must reset your password using ALTER USER statement before executing this statement.
+	SET PASSWORD = PASSWORD('123456'); 
+	---
+	如果有问题，这么启动mysql start --skip-grant-tables
 
----
-启动
-mysqld_safe --user=mysql &
-重启
-service mysql restart
-执行
-mysql -u root -p
-然后回车即可登录
-修改密码
-use mysql;
-update mysql.user set authentication_string=password('123456') where user='root';
-FLUSH PRIVILEGES;
+	---
+	启动
+	mysqld_safe --user=mysql &
+	重启
+	service mysql restart
+	执行
+	mysql -u root -p
+	然后回车即可登录
+	修改密码
+	use mysql;
+	update mysql.user set authentication_string=password('123456') where user='root';
+	FLUSH PRIVILEGES;
 
-添加远程权限
-use mysql; 
-update user set host = '%' where user = 'root';
-测试
-select host, user from user;
+	添加远程权限
+	use mysql; 
+	update user set host = '%' where user = 'root';
+	测试
+	select host, user from user;
+
+>
 
 
 
